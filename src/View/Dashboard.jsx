@@ -4,103 +4,157 @@ import { connect } from 'react-redux';
 import Faker from 'faker';
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
+import Loader from 'react-loader-spinner';
+import Leftpanel from "../View/Leftpanel";
+import {addUserData} from '../Store/actions/userActions';
 
 class Dashboard extends React.Component{
     constructor(props) {
         super(props)
         this.state = {
             feeds: [],
-            userImage: Faker.internet.avatar(),
-            userName: Faker.internet.userName(),
-            firstName: Faker.name.firstName(1),
-            lastName: Faker.name.lastName(1), 
-            userDetail: Faker.lorem.sentence(30), 
+            isLoading: false,
+            filtertext: '',
         }
+
+        this.onChange = this.onChange.bind(this);
     }
 
-    componentWillMount() {
-        for (let i = 0; i < 10; i++) {
-          const feed = {
-            title: Faker.lorem.word(),
-            description: Faker.lorem.sentence(30),
+    componentDidMount() {
+        this.refs.iScroll.addEventListener("scroll", () => {
+          if (
+            this.refs.iScroll.scrollTop + this.refs.iScroll.clientHeight >=
+            this.refs.iScroll.scrollHeight
+          ) {
+            this.loadData();
           }
-          this.setState(prevState => ({
-            feeds: [...prevState.feeds, feed],
-          }))
+        });
+      }
+
+    componentWillMount() {
+        this.loadData();
+    }
+
+    loadData(){
+        this.setState({
+            isLoading: true
+        })
+        
+        // To show loader setTimeout function was added
+        setTimeout(() => {
+            for (let i = 0; i < 10; i++) {
+                const feed = {
+                  title: Faker.lorem.word(),
+                  description: Faker.lorem.sentence(30),
+                }
+                this.setState(prevState => ({
+                  feeds: [...prevState.feeds, feed],
+                }))
+            }
+            this.setState({
+                isLoading: false
+            })
+        }, 1000);
+    }
+
+    gotoAccountSetting = () => {
+        const {userData} = this.props;
+        const {feeds, isLoading} = this.state;
+        addUserData({
+            username: userData.username,
+            userimage: userData.userimage,
+            firstname: userData.firstname,
+            lastname: userData.lastname,
+            userdetail: userData.userdetail,
+        });
+        this.props.history.push({
+            pathname: `/${userData.username}/edit`,
+        });
+    }
+
+    onChange(e){
+        const {name, value} = e.target;
+        this.setState({[name]: value});
+    }
+
+    onSubmitFilter = () => {
+        let {filtertext, feeds} = this.state;
+
+        let feedsFilterArray = [...feeds];
+
+        let lowercasedFilter = filtertext.toLowerCase();
+
+        if(lowercasedFilter != ''){
+            let filteredData = feeds.filter(feed => {
+                return Object.keys(feed).some(key =>
+                    feed[key].toLowerCase().includes(lowercasedFilter)
+                );
+            });
+            this.setState({
+                feeds: filteredData
+            })
         }
     }
 
     render(){
-
         const {userData} = this.props;
-        const {userImage, userName, firstName, lastName, userDetail, feeds} = this.state;
+        const {feeds, isLoading} = this.state;
         return(
             <>  
-                <Header location={this.props.location} username="1223"  />
-                <div class="container-fluid">
-                    <div class="row" style={{paddingTop: 25, paddingBottom: 25}}>
-                        <div class="col-12 col-xl-2">
-                            <div class="user-info" style={{textAlign: 'center', padding: 15, background: '#d2d2d2'}}> 
-                                <div>
-                                    <img style={{borderRadius: 10}} src={userImage} class="img-circle img-responsive" />
-                                    <h2 style={{fontSize: 20, marginTop: 10}}>{firstName} {lastName}</h2>
-                                    <h3 style={{fontSize: 20, marginTop: 10}}>Busy</h3>
-                                    <p>{userDetail}</p>
-                                </div>
-                            </div>
-                            <div class="list-box">
-                                <div>
-                                    <ul class="list-inline">
-                                        <li>My Posts</li>
-                                        <li>Account Settings</li>
-                                    </ul>
-                                </div>
-                            </div>
+                <Header location={this.props.location} username={userData.username}  />
+                <div className="container-fluid">
+                    <div className="row" style={{paddingTop: 25, paddingBottom: 25}}>
+                        <div className="col-12 col-xl-2">
+                            <Leftpanel location={this.props.location} userData={userData} gotoAccountSetting={this.gotoAccountSetting} />
                         </div>
-                        <div class="col-12 col-xl-7">
-                            <div class="box-height">
+                        <div className="col-12 col-xl-7">
+                            <div className="box-height" ref="iScroll">
                                 <div>
-                                    <div class="col-sm-3 col-md-3">
-                                        <form class="navbar-form" role="search">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" placeholder="Search" name="q" />
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-default" type="submit">Go</button>
+                                    <div className="col-sm-3 col-md-3 searchForm">
+                                        <form className="navbar-form" role="search">
+                                            <div className="input-group">
+                                                <input type="text" className="form-control" placeholder="Search" name="filtertext" onChange={this.onChange} />
+                                                <div className="input-group-btn">
+                                                    <button className="btn btn-default" onClick={this.onSubmitFilter} type="button">Go</button>
                                                 </div>
                                             </div>  
                                         </form>
                                     </div>
-
-                                    {feeds.map((feed, key) => {
-                                        return(
-                                            <>
-                                                <div>
-                                                    <h3>{feed.title}</h3>
-                                                    <p>{feed.description}</p>
-                                                </div>  
-                                            </>
-                                        )
-                                    })}
+                                    <div className="feedsDiv">
+                                        {feeds.map((feed, key) => {
+                                            return(
+                                                <>
+                                                    <div className="feedPost" key={key}>
+                                                        <div>
+                                                            <h3>{feed.title}</h3>
+                                                            <p>{feed.description}</p>
+                                                        </div>
+                                                    </div>  
+                                                </>
+                                            )
+                                        })}
+                                        {
+                                            isLoading &&
+                                                <div style={{textAlign:'center'}}><Loader type="Circles" color="#5e72e4" height={40} width={40} /></div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-xl-3">
+                        <div className="col-12 col-xl-3">
                             AAAAAAAAAAa
                         </div>
                     </div>
                 </div>
-                <Footer location={this.props.location} username="1223"  />
+                <Footer location={this.props.location} />
             </>
         )
     }
 }
-
 const mapStateToProps = (state) => ({
     userData: state.userReducer.userData,
 });
-
 const mapDispatchToProps = (dispatch) => ({
-
+    addUserData: (user) => dispatch(addUserData(user))
 });
-
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

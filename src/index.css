@@ -106,15 +106,32 @@ margin-left: 4px;
 .list-box{
   height: calc(100vh - 600px);
   padding: 15px; 
-  background: #d2d2d2; 
   margin-top: 10px
 }    
 
-@media screen and (min-width:320px) and (max-width:767px) {
-  .fixed-bottom {
-    position: inherit;
-  }
-  .list-box {
-    margin-bottom: 10px;
-  }
+.searchForm {
+  max-width: 50% !important;
+  margin: 0 auto;
+}
+
+.input-group-btn {
+  background: #fff; 
+  margin-left: 10px;
+}
+
+.feedsDiv {
+  margin-top: 10px;
+}
+
+.feedPost {
+  background: #fff;
+  border-radius: 10px;
+}
+
+.active {
+  color: #007eff;
+}
+
+.background_clr {
+  background: #d2d2d2 !important;
 }

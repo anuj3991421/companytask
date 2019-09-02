@@ -6,11 +6,10 @@ class Footer extends React.Component{
         super(props);
         this.state = {
             pathname: this.props.location.pathname,
-            username: this.props.username
         }   
     }
     render(){
-        const {pathname, username} = this.state;
+        const {pathname} = this.state;
         return(
             <div className="bs-example">
                 <nav className="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark footer-nav">

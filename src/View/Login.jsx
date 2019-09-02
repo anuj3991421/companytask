@@ -1,10 +1,10 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import { connect } from 'react-redux';
-
+import Faker from 'faker';
 import {addUserData} from '../Store/actions/userActions';
 
-class Register extends React.Component{
+class Login extends React.Component{
 
     constructor(props){
         super(props);
@@ -20,7 +20,11 @@ class Register extends React.Component{
         const { addUserData } = this.props;
         const { username, password } = this.state;
             addUserData({
-                username, password
+                username, 
+                userimage: Faker.internet.avatar(),
+                firstiame: Faker.name.firstName(1),
+                lastname: Faker.name.lastName(1), 
+                userdetail: Faker.lorem.sentence(30), 
             });
             this.props.history.push(`/${this.state.username}`);
     }
@@ -75,4 +79,4 @@ const mapDispatchToProps = (dispatch) => ({
 	addUserData: (user) => dispatch(addUserData(user))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Register);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
